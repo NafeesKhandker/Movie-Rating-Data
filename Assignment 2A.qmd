@@ -1,0 +1,44 @@
+---
+title: "Assignment 2A"
+author: "Khandker Qaiduzzaman"
+format: html
+editor: visual
+---
+
+# Objective
+
+Collect simple movie-rating data, store it in a SQL database, and analyze it in R.
+
+# Approach
+
+### Data Collection Strategy
+
+To collect simple movie-rating data, I have created a google form to collect the survey response and sent the link to several respondent. The respondent rated 6 recent popular movies on a scale of 1 to 5. Additionally, they provided some demographic information. The survey link is as follows: [Movie Rating Survey](https://forms.gle/qkDSQNKwsKNd7AMfA)
+
+### Survey Question
+
+The following are the survey questions that were asked in the Google form:
+
+-   Email
+
+-   Name
+
+-   Please enter your age
+
+-   Please enter your gender
+
+-   Rate Superman (2025) on a scale of 1 to 5. Enter "NA" if you haven't watched this movie
+
+-   Rate F1: The Movie (2025) on a scale of 1 to 5. Enter "NA" if you haven't watched this movie
+
+-   Rate Mission: Impossible – The Final Reckoning (2025) on a scale of 1 to 5. Enter "NA" if you haven't watched this movie
+
+-   Rate Jurassic World: Rebirth (2025) on a scale of 1 to 5. Enter "NA" if you haven't watched this movie
+
+-   Rate Sinners (2025) on a scale of 1 to 5. Enter "NA" if you haven't watched this movie
+
+-   Rate Zootopia 2 (2025) on a scale of 1 to 5. Enter "NA" if you haven't watched this movie
+
+### Anticipated Data Challenges
+
+One of the main challenges is to handle the missing data in this dataset. It has both categorical and numerical variables. Another challenge is to insert the data into a relational database from the survey response. Also, the column names in the survey response file are the questions asked in the survey, which need to replace with proper column names for easier data manipulation. The survey response can be viewed here: <https://docs.google.com/spreadsheets/d/17nmxnleMjQF4rDCS3sxobkbGQ8L7gn-1kKuXwGPIoFQ/edit?usp=sharing>
