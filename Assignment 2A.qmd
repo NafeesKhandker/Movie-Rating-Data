@@ -62,7 +62,7 @@ host <- "localhost"
 port <- 5432          
 dbname <- "DATA607"
 user <- "postgres"   
-password <- "data607"
+password <- ""
 
 conn <- dbConnect(
   RPostgres::Postgres(),
@@ -149,3 +149,4 @@ ggplot(avg_ratings, aes(x = Average_Rating, y = fct_reorder(Movie, Average_Ratin
 ## Conclusion
 
 The bar chart shows that according to the participants, the Mission Impossible: The Final Reckoning is the highest rated movie. Zootopia 2, Sinners, F1: The movie got almost identical average rating (\~4.2). The Jurassic World Rebirth has the lowest average rating of 3.17. More insights can be found if we can find correlation between the participant's demographic information with the rating. A movie recommender system can be created as well based on the age, sex, etc. of the participants.
+
