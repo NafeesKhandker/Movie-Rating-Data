@@ -41,4 +41,111 @@ The following are the survey questions that were asked in the Google form:
 
 ### Anticipated Data Challenges
 
-One of the main challenges is to handle the missing data in this dataset. It has both categorical and numerical variables. Another challenge is to insert the data into a relational database from the survey response. Also, the column names in the survey response file are the questions asked in the survey, which need to replace with proper column names for easier data manipulation. The survey response can be viewed here: <https://docs.google.com/spreadsheets/d/17nmxnleMjQF4rDCS3sxobkbGQ8L7gn-1kKuXwGPIoFQ/edit?usp=sharing>
+One of the main challenges is to handle the missing data in this dataset. It has both categorical and numerical variables. Another challenge is to insert the data into a relational database from the survey response. Also, the column names in the survey response file are the questions asked in the survey, which need to replace with proper column names for easier data manipulation. The survey response can be viewed here: <https://raw.githubusercontent.com/NafeesKhandker/Movie-Rating-Data/refs/heads/main/Movie%20Rating%20(Responses).csv>
+
+### Connecting R to SQL Database (PostgreSQL)
+
+To connect R to PostgreSQL I am installing two libraries RPostgres and DBI.
+
+```{r}
+#install.packages("RPostgres")
+#install.packages("DBI")
+```
+
+The host, port, dbname, user and password is set from pgAdmin4. Then I opened a database connection using the host, port, dbname, user and password. The R function dbReadTable() is reading the data from the table rating_final and storing the data to dataframe df. Finally, the connection is closed.
+
+```{r}
+library(DBI)
+library(RPostgres)
+
+host <- "localhost"       
+port <- 5432          
+dbname <- "DATA607"
+user <- "postgres"   
+password <- "data607"
+
+conn <- dbConnect(
+  RPostgres::Postgres(),
+  dbname = dbname,
+  host = host,
+  port = port,
+  user = user,
+  password = password
+)
+
+df <- dbReadTable(conn, "rating_final")
+
+dbDisconnect(conn)
+```
+
+Using tidyverse, I am printing the dataframe using the glimpse() function.
+
+```{r}
+library(tidyverse)
+glimpse(df)
+```
+
+Using gt package, I am representing the dataframe in a structured table that helps to look into the data closely.
+
+```{r}
+library(gt)
+df |>
+  gt()
+```
+
+### Subset the Data and Handle Missing Values
+
+I am creating the subset of the dataframe with only the movie ratings. Since, the ratings are stored as text, I am explicitly converting it to numerical numbers. Finally, I am replacing the missing ratings (imputation) with mean. A head() printing of the dataframe confirms the change.
+
+```{r}
+rating_cols <- names(df)[6:11]
+
+df <- df %>%
+  mutate(across(all_of(rating_cols), as.numeric))
+
+df <- df %>%
+  mutate(across(all_of(rating_cols), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
+
+head(df)
+```
+
+### Visualize the Average Movie Rating
+
+I am reshaping the data to long format so that it can be properly used by gglot2. Then, I am calculating the average of each movie's rating and plotting a horizontal bar chart. Finally, adding title, labels, assigning colors and annotation for better visualization.
+
+```{r}
+# Reshape data to long format
+df_long <- df %>%
+  pivot_longer(
+    cols = all_of(rating_cols),
+    names_to = "Movie",
+    values_to = "Rating"
+  ) %>%
+  mutate(Movie = str_replace_all(Movie, "\\.\\.2025\\.\\.Rating", "")) %>%
+  mutate(Movie = str_replace_all(Movie, "\\.", " "))
+
+# Calculate average ratings per movie
+avg_ratings <- df_long %>%
+  group_by(Movie) %>%
+  summarise(Average_Rating = mean(Rating, na.rm = TRUE))
+
+# Plot horizontal bar chart with different colors and annotation
+ggplot(avg_ratings, aes(x = Average_Rating, y = fct_reorder(Movie, Average_Rating), fill = Movie)) +
+  geom_col() +
+  geom_text(aes(label = round(Average_Rating, 2)), 
+            hjust = -0.1, # position outside the bar
+            size = 4) +
+  scale_fill_brewer(palette = "Set3") + # nice color palette
+  labs(
+    title = "Average Ratings of Movies",
+    x = "Average Rating",
+    y = "Movie"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none") + # remove legend as colors already indicate movies
+  xlim(0, max(avg_ratings$Average_Rating) + 1) # adjust x-axis for labels
+```
+
+## Conclusion
+
+The bar chart shows that according to the participants, the Mission Impossible: The Final Reckoning is the highest rated movie. Zootopia 2, Sinners, F1: The movie got almost identical average rating (\~4.2). The Jurassic World Rebirth has the lowest average rating of 3.17. More insights can be found if we can find correlation between the participant's demographic information with the rating. A movie recommender system can be created as well based on the age, sex, etc. of the participants.
